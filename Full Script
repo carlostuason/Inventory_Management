@@ -1,0 +1,727 @@
+create database INVENTORY_MANAGEMENT;
+
+-- Create tables -- 
+create table WAREHOUSE (
+	Warehouse_ID char(8),
+    Name varchar(32),
+    Zip char(5),
+    City varchar(20),
+    State char(2), 
+    CONSTRAINT PK_WAREHOUSE primary key(Warehouse_ID)
+);
+create table USER (
+	User_ID char(8),
+    Email varchar(32),
+    First_Name varchar(16),
+    Last_Name varchar(16),
+    Password binary(60), -- Will store a bcrypt hash value for the password, which will produce a hash value with a fixed length of 60 bytes
+    Warehouse_ID char(8),
+    CONSTRAINT PK_USER primary key(User_ID),
+    CONSTRAINT FK_USER_TO_WAREHOUSE foreign key(Warehouse_ID) references WAREHOUSE(Warehouse_ID) ON DELETE SET NULL
+);
+create table PRODUCT (
+	Product_ID char(16),
+    Name varchar(32),
+    Price decimal(10,2),
+    Quantity int,
+    Storage_Location varchar(64),
+    Warehouse_ID char(8),
+    CONSTRAINT PK_PRODUCT primary key(Product_ID),
+    CONSTRAINT FK_PRODCUT_TO_WAREHOUSE foreign key(Warehouse_ID) references WAREHOUSE(Warehouse_ID) ON DELETE SET NULL
+);
+create table QTY_CHANGE (
+	Change_ID char(8),
+    Product_ID char(16),
+    User_ID char(8),
+    Change_Value int not null check (Change_Value <> 0),
+    Reason varchar(256),
+    CONSTRAINT PK_QTY_CHANGE primary key(Change_ID),
+    CONSTRAINT FK_QTY_CHANGE_TO_PRODUCT foreign key(Product_ID) references PRODUCT(Product_ID) ON DELETE SET NULL,
+    CONSTRAINT FK_QTY_CHANGE_TO_USER foreign key(USER_ID) references USER(USER_ID) ON DELETE SET NULL
+);
+create table AUDIT (
+	Audit_ID char(8),
+    Reason varchar(256),
+    Timestamp datetime,
+    Warehouse_ID char(8),
+    CONSTRAINT PK_AUDIT primary key(Audit_ID),
+    CONSTRAINT FK_AUDIT_TO_WAREHOUSE foreign key(Warehouse_ID) references WAREHOUSE(Warehouse_ID) ON DELETE SET NULL
+);
+create table VENDOR (
+	Vendor_ID char(8),
+    Name varchar(32),
+    Email varchar(32),
+    Phone_Number varchar(32), -- store w/ country code and formatting, with an optional extension e.g. +1 (702) 111-1111 ext.555
+    Zip char(5),
+    City varchar(32),
+    State char(2),
+    CONSTRAINT PK_VENDOR primary key(Vendor_ID)
+);
+create table SELLS (
+	Vendor_ID char(8),
+    Product_ID char(16),
+    CONSTRAINT PK_SELLS primary key(Vendor_ID, Product_ID),
+    CONSTRAINT FK_VENDOR_SELLS foreign key(Vendor_ID) references VENDOR(Vendor_ID) ON DELETE CASCADE,
+    CONSTRAINT FK_SELLS_PRODUCT foreign key(Product_ID) references PRODUCT(Product_ID) ON DELETE CASCADE
+);
+create table SUPPLIER (
+	Supplier_ID char(8),
+    Name varchar(32),
+    Email varchar(32),
+    Phone_Number varchar(32), -- store w/ country code and formatting, with an optional extension e.g. +1 (702) 111-1111 ext.555
+    Zip char(5),
+    City varchar(32),
+    State char(2),
+    CONSTRAINT PK_SUPPLIER primary key(Supplier_ID)
+);
+create table SUPPLIES (
+	Supplier_ID char(8),
+    Product_ID char(16),
+    CONSTRAINT PK_SUPPLIES primary key(Supplier_ID, Product_ID),
+    CONSTRAINT FK_SUPPLIER_SUPPLIES foreign key(Supplier_ID) references SUPPLIER(Supplier_ID) ON DELETE CASCADE,
+    CONSTRAINT FK_SUPPLIES_PRODUCT foreign key(Product_ID) references PRODUCT(Product_ID) ON DELETE CASCADE
+);
+
+-- Populate tables --
+INSERT INTO warehouse (Warehouse_ID, Name, Zip, City, State)
+VALUES
+(20000001,	'James',	89138,	'Las Vegas', 'NV'),
+(20000002,	'Robert',	90210,	'Los Anageles',	'CA'),
+(20000003,	'John',	10001,	'New York',	'NY'),
+(20000004,	'Michael',	89138,	'Las Vegas',	'NV'),
+(20000005,	'William',	90210,	'Los Anageles',	'CA'),
+(20000006,	'David',	10001,	'New York',	'NY'),
+(20000007,	'Richard',	89138,	'Las Vegas',	'NV'),
+(20000008,	'Joseph',	90210,	'Los Anageles',	'CA'),
+(20000009,	'Thomas',	10001,	'New York',	'NY'),
+(20000010,	'Charles',	89138,	'Las Vegas',	'NV'),
+(20000011,	'Christopher',	90210,	'Los Anageles',	'CA'),
+(20000012,	'Daniel',	10001,	'New York',	'NY'),
+(20000013,	'Matthew',	89138,	'Las Vegas',	'NV'),
+(20000014,	'Anthony',	90210,	'Los Anageles',	'CA'),
+(20000015,	'Mark',	10001,	'New York',	'NY'),
+(20000016,	'Donald',	89138,	'Las Vegas',	'NV'),
+(20000017,	'Steven',	90210,	'Los Anageles',	'CA'),
+(20000018,	'Paul',	10001,	'New York',	'NY'),
+(20000019,	'Andrew',	89138,	'Las Vegas',	'NV'),
+(20000020,	'Joshua',	90210,	'Los Anageles',	'CA'),
+(20000021,	'Kenneth',	10001,	'New York',	'NY'),
+(20000022,	'Kevin',	89138,	'Las Vegas',	'NV'),
+(20000023,	'Brian',	90210,	'Los Anageles',	'CA'),
+(20000024,	'George',	10001,	'New York',	'NY'),
+(20000025,	'Edward',	89138,	'Las Vegas',	'NV'),
+(20000026,	'Patricia',	90210,	'Los Anageles',	'CA'),
+(20000027,	'Jennifer',	10001,	'New York',	'NY'),
+(20000028,	'Linda',	89138,	'Las Vegas',	'NV'),
+(20000029,	'Elizabeth',	90210,	'Los Anageles',	'CA'),
+(20000030,	'Barbara',	10001,	'New York',	'NY'),
+(20000031,	'Susan',	89138,	'Las Vegas',	'NV'),
+(20000032,	'Jessica',	90210,	'Los Anageles',	'CA'),
+(20000033,	'Sarah',	10001,	'New York',	'NY'),
+(20000034,	'Karen',	89138,	'Las Vegas',	'NV'),
+(20000035,	'Nancy',	90210,	'Los Anageles',	'CA'),
+(20000036,	'Lisa',	10001,	'New York',	'NY'),
+(20000037,	'Betty',	89138,	'Las Vegas',	'NV'),
+(20000038,	'Margaret',	90210,	'Los Anageles',	'CA'),
+(20000039,	'Sandra',	10001,	'New York',	'NY'),
+(20000040,	'Ashley',	89138,	'Las Vegas',	'NV'),
+(20000041,	'Kimberly',	90210,	'Los Anageles',	'CA'),
+(20000042,	'Emily',	10001,	'New York',	'NY'),
+(20000043,	'Donna',	89138,	'Las Vegas',	'NV'),
+(20000044,	'Michelle',	90210,	'Los Anageles',	'CA'),
+(20000045,	'Dorothy',	10001,	'New York',	'NY'),
+(20000046,	'Carol',	89138,	'Las Vegas',	'NV'),
+(20000047,	'Amanda',	90210,	'Los Anageles',	'CA'),
+(20000048,	'Melissa',	10001,	'New York',	'NY'),
+(20000049,	'Deborah',	89138,	'Las Vegas',	'NV'),
+(20000050,	'Vanessa',	90210,	'Los Anageles',	'CA');
+
+INSERT INTO USER (User_ID, Email, First_Name, Last_Name, Password, Warehouse_ID)
+VALUES
+(10000001,	'James.Smith@Gmail.com',	'James',	'Smith',	691287,	20000001),
+(10000002,	'Robert.Johnson@Gmail.com',	'Robert',	'Johnson',	467678,	20000002),
+(10000003,	'John.Williams@Gmail.com',	'John',	'Williams',	456916,	20000003),
+(10000004,	'Michael.Brown@Gmail.com',	'Michael',	'Brown',	227335,	20000001),
+(10000005,	'William.Jones@Gmail.com',	'William',	'Jones',	759342,	20000002),
+(10000006,	'David.Garcia@Gmail.com',	'David',	'Garcia',	775666,	20000003),
+(10000007,	'Richard.Miller@Gmail.com',	'Richard',	'Miller',	568778,	20000001),
+(10000008,	'Joseph.Davis@Gmail.com',	'Joseph',	'Davis',	818580,	20000002),
+(10000009,	'Thomas.Rodriguez@Gmail.com',	'Thomas',	'Rodriguez',	518245,	20000003),
+(10000010,	'Charles.Martinez@Gmail.com',	'Charles',	'Martinez',	467318,	20000001),
+(10000011,	'Christopher.Hernandez@Gmail.com',	'Christopher',	'Hernandez',	903402,	20000002),
+(10000012,	'Daniel.Lopez@Gmail.com',	'Daniel',	'Lopez',	222158,	20000003),
+(10000013,	'Matthew.Gonzales@Gmail.com',	'Matthew',	'Gonzales',	321905,	20000001),
+(10000014,	'Anthony.Wilson@Gmail.com',	'Anthony',	'Wilson',	813423,	20000002),
+(10000015,	'Mark.Anderson@Gmail.com',	'Mark',	'Anderson',	294166,	20000003),
+(10000016,	'Donald.Thomas@Gmail.com',	'Donald',	'Thomas',	106406,	20000001),
+(10000017,	'Steven.Taylor@Gmail.com',	'Steven',	'Taylor',	701386,	20000002),
+(10000018,	'Paul.Moore@Gmail.com',	'Paul',	'Moore',	322485,	20000003),
+(10000019,	'Andrew.Jackson@Gmail.com',	'Andrew',	'Jackson',	233349,	20000001),
+(10000020,	'Joshua.Martin@Gmail.com',	'Joshua',	'Martin',	247026,	20000002),
+(10000021,	'Kenneth.Lee@Gmail.com',	'Kenneth',	'Lee',	823476,	20000003),
+(10000022,	'Kevin.Perez@Gmail.com',	'Kevin',	'Perez',	195346,	20000001),
+(10000023,	'Brian.Thompson@Gmail.com',	'Brian',	'Thompson',	258790,	20000002),
+(10000024,	'George.White@Gmail.com',	'George',	'White',	135437,	20000003),
+(10000025,	'Edward.Harris@Gmail.com',	'Edward',	'Harris',	939150,	20000001),
+(10000026,	'Patricia.Sanchez@Gmail.com',	'Patricia',	'Sanchez',	147171,	20000002),
+(10000027,	'Jennifer.Clark@Gmail.com',	'Jennifer',	'Clark',	127407,	20000003),
+(10000028,	'Linda.Ramirez@Gmail.com',	'Linda',	'Ramirez',	221723,	20000001),
+(10000029,	'Elizabeth.Lewis@Gmail.com',	'Elizabeth',	'Lewis',	658562,	20000002),
+(10000030,	'Barbara.Robinson@Gmail.com',	'Barbara',	'Robinson',	539203,	20000003),
+(10000031,	'Susan.Walker@Gmail.com',	'Susan',	'Walker',	331282,	20000001),
+(10000032,	'Jessica.Young@Gmail.com',	'Jessica',	'Young',	674450,	20000002),
+(10000033,	'Sarah.Allen@Gmail.com',	'Sarah',	'Allen',	329340,	20000003),
+(10000034,	'Karen.King@Gmail.com',	'Karen',	'King',	181507,	20000001),
+(10000035,	'Nancy.Wright@Gmail.com',	'Nancy',	'Wright',	824141,	20000002),
+(10000036,	'Lisa.Scott@Gmail.com',	'Lisa',	'Scott',	167280,	20000003),
+(10000037,	'Betty.Torres@Gmail.com',	'Betty',	'Torres',	586348,	20000001),
+(10000038,	'Margaret.Nguyen@Gmail.com',	'Margaret',	'Nguyen',	747110,	20000002),
+(10000039,	'Sandra.Hill@Gmail.com',	'Sandra',	'Hill',	507431,	20000003),
+(10000040,	'Ashley.Flores@Gmail.com',	'Ashley',	'Flores',	239273,	20000001),
+(10000041,	'Kimberly.Green@Gmail.com',	'Kimberly',	'Green',	600111,	20000002),
+(10000042,	'Emily.Adams@Gmail.com',	'Emily',	'Adams',	156283,	20000003),
+(10000043,	'Donna.Nelson@Gmail.com',	'Donna',	'Nelson',	315035,	20000001),
+(10000044,	'Michelle.Baker@Gmail.com',	'Michelle',	'Baker',	802945,	20000002),
+(10000045,	'Dorothy.Hall@Gmail.com',	'Dorothy',	'Hall',	699029,	20000003),
+(10000046,	'Carol.Rivera@Gmail.com',	'Carol',	'Rivera',	124066,	20000001),
+(10000047,	'Amanda.Campbell@Gmail.com',	'Amanda',	'Campbell',	640979,	20000002),
+(10000048,	'Melissa.Mitchell@Gmail.com',	'Melissa',	'Mitchell',	625715,	20000003),
+(10000049,	'Deborah.Carter@Gmail.com',	'Deborah',	'Carter',	454949,	20000001),
+(10000050,	'Vanessa.Ganster@Gmail.com',	'Vanessa',	'Ganster',	155960,	20000002);
+
+INSERT INTO product (Product_ID, Name, Price, Quantity, Storage_Location, Warehouse_ID)
+VALUES
+(60000001,	'P1',	 17, 	2,	'Las Vegas',	'20000001'),
+(60000002,	'P2',	 42, 	4,	'Los Anageles',	'20000002'),
+(60000003,	'P3',	 95, 	4,	'New York',	'20000003'),
+(60000004,	'P4',	 36, 	1,	'Las Vegas',	'20000001'),
+(60000005,	'P5',	 59, 	1,	'Los Anageles',	'20000002'),
+(60000006,	'P6',	 50, 	2,	'New York',	'20000003'),
+(60000007,	'P7',	 73, 	3,	'Las Vegas',	'20000001'),
+(60000008,	'P8',	 46, 	5,	'Los Anageles',	'20000002'),
+(60000009,	'P9',	 99, 	3,	'New York',	'20000003'),
+(60000010,	'P10',	 94, 	2,	'Las Vegas',	'20000001'),
+(60000011,	'P11',	 21, 	5,	'Los Anageles',	'20000002'),
+(60000012,	'P12',	 23, 	4,	'New York',	'20000003'),
+(60000013,	'P13',	 42, 	2,	'Las Vegas',	'20000001'),
+(60000014,	'P14',	 38, 	5,	'Los Anageles',	'20000002'),
+(60000015,	'P15',	 33, 	2,	'New York',	'20000003'),
+(60000016,	'P16',	 74, 	3,	'Las Vegas',	'20000001'),
+(60000017,	'P17',	 76, 	5,	'Los Anageles',	'20000002'),
+(60000018,	'P18',	 62, 	5,	'New York',	'20000003'),
+(60000019,	'P19',	 2, 	4,	'Las Vegas',	'20000001'),
+(60000020,	'P20',	 47, 	3,	'Los Anageles',	'20000002'),
+(60000021,	'P21',	 51, 	1,	'New York',	'20000003'),
+(60000022,	'P22',	 64, 	5,	'Las Vegas',	'20000001'),
+(60000023,	'P23',	 58, 	3,	'Los Anageles',	'20000002'),
+(60000024,	'P24',	 93, 	1,	'New York',	'20000003'),
+(60000025,	'P25',	 84, 	2,	'Las Vegas',	'20000001'),
+(60000026,	'P26',	 64, 	5,	'Los Anageles',	'20000002'),
+(60000027,	'P27',	 14, 	2,	'New York',	'20000003'),
+(60000028,	'P28',	 100, 	2,	'Las Vegas',	'20000001'),
+(60000029,	'P29',	 84, 	5,	'Los Anageles',	'20000002'),
+(60000030,	'P30',	 79, 	3,	'New York',	'20000003'),
+(60000031,	'P31',	 54, 	5,	'Las Vegas',	'20000001'),
+(60000032,	'P32',	 8, 	2,	'Los Anageles',	'20000002'),
+(60000033,	'P33',	 35, 	3,	'New York',	'20000003'),
+(60000034,	'P34',	 6, 	1,	'Las Vegas',	'20000001'),
+(60000035,	'P35',	 90, 	2,	'Los Anageles',	'20000002'),
+(60000036,	'P36',	 72, 	5,	'New York',	'20000003'),
+(60000037,	'P37',	 100, 	5,	'Las Vegas',	'20000001'),
+(60000038,	'P38',	 41, 	3,	'Los Anageles',	'20000002'),
+(60000039,	'P39',	 63, 	2,	'New York',	'20000003'),
+(60000040,	'P40',	 19, 	5,	'Las Vegas',	'20000001'),
+(60000041,	'P41',	 6, 	2,	'Los Anageles',	'20000002'),
+(60000042,	'P42',	 53, 	4,	'New York',	'20000003'),
+(60000043,	'P43',	 15, 	5,	'Las Vegas',	'20000001'),
+(60000044,	'P44',	 54, 	3,	'Los Anageles',	'20000002'),
+(60000045,	'P45',	 16, 	2,	'New York',	'20000003'),
+(60000046,	'P46',	 94, 	4,	'Las Vegas',	'20000001'),
+(60000047,	'P47',	 75, 	4,	'Los Anageles',	'20000002'),
+(60000048,	'P48',	 95, 	3,	'New York',	'20000003'),
+(60000049,	'P49',	 29, 	2,	'Las Vegas',	'20000001'),
+(60000050,	'P50',	 61, 	3,	'Los Anageles',	'20000002');
+
+INSERT INTO qty_change (Change_ID, Product_ID, User_ID, Change_Value, Reason)
+VALUES
+(30000001,	60000001,	10000001,	1,	'Return'),
+(30000002,	60000002,	10000002,	8,	'Return'),
+(30000003,	60000003,	10000003,	7,	'Purchase'),
+(30000004,	60000004,	10000004,	4,	'Return'),
+(30000005,	60000005,	10000005,	3,	'Change'),
+(30000006,	60000006,	10000006,	7,	'Purchase'),
+(30000007,	60000007,	10000007,	8,	'Purchase'),
+(30000008,	60000008,	10000008,	4,	'Return'),
+(30000009,	60000009,	10000009,	6,	'Return'),
+(30000010,	60000010,	10000010,	4,	'Return'),
+(30000011,	60000011,	10000011,	6,	'Change'),
+(30000012,	60000012,	10000012,	3,	'Return'),
+(30000013,	60000013,	10000013,	4,	'Return'),
+(30000014,	60000014,	10000014,	5,	'Change'),
+(30000015,	60000015,	10000015,	7,	'Return'),
+(30000016,	60000016,	10000016,	3,	'Return'),
+(30000017,	60000017,	10000017,	1,	'Return'),
+(30000018,	60000018,	10000018,	9,	'Purchase'),
+(30000019,	60000019,	10000019,	7,	'Purchase'),
+(30000020,	60000020,	10000020,	5,	'Change'),
+(30000021,	60000021,	10000021,	1,	'Change'),
+(30000022,	60000022,	10000022,	5,	'Purchase'),
+(30000023,	60000023,	10000023,	5,	'Purchase'),
+(30000024,	60000024,	10000024,	3,	'Change'),
+(30000025,	60000025,	10000025,	7,	'Change'),
+(30000026,	60000026,	10000026,	8,	'Return'),
+(30000027,	60000027,	10000027,	6,	'Change'),
+(30000028,	60000028,	10000028,	3,	'Change'),
+(30000029,	60000029,	10000029,	8,	'Change'),
+(30000030,	60000030,	10000030,	8,	'Change'),
+(30000031,	60000031,	10000031,	7,	'Purchase'),
+(30000032,	60000032,	10000032,	8,	'Return'),
+(30000033,	60000033,	10000033,	2,	'Purchase'),
+(30000034,	60000034,	10000034,	4,	'Purchase'),
+(30000035,	60000035,	10000035,	1,	'Change'),
+(30000036,	60000036,	10000036,	8,	'Return'),
+(30000037,	60000037,	10000037,	3,	'Purchase'),
+(30000038,	60000038,	10000038,	7,	'Return'),
+(30000039,	60000039,	10000039,	2,	'Return'),
+(30000040,	60000040,	10000040,	2,	'Change'),
+(30000041,	60000041,	10000041,	7,	'Return'),
+(30000042,	60000042,	10000042,	1,	'Return'),
+(30000043,	60000043,	10000043,	7,	'Change'),
+(30000044,	60000044,	10000044,	5,	'Purchase'),
+(30000045,	60000045,	10000045,	8,	'Purchase'),
+(30000046,	60000046,	10000046,	2,	'Change'),
+(30000047,	60000047,	10000047,	9,	'Return'),
+(30000048,	60000048,	10000048,	5,	'Purchase'),
+(30000049,	60000049,	10000049,	4,	'Purchase'),
+(30000050,	60000050,	10000050,	6,	'Purchase');
+
+INSERT INTO audit (Audit_ID, Reason, Timestamp, Warehouse_ID)
+VALUES 
+(50000001,	'Missing',	'2021-11-23	3:50:44',	20000001),
+(50000002,	'Missing',	'2021-11-24	16:04:44',	20000002),
+(50000003,	'Lost',	'2021-11-25	13:15:58',	20000003),
+(50000004,	'Complete',	'2021-11-26	23:10:24',	20000001),
+(50000005,	'Complete',	'2021-11-27	22:47:',	20000002),
+(50000006,	'Missing',	'2021-11-28	12:23:48',	20000003),
+(50000007,	'Missing',	'2021-11-29	17:50:36',	20000001),
+(50000008,	'Complete',	'2021-11-30	09:24:02',	20000002),
+(50000009,	'Missing',	'2021-12-01	18:07:46',	20000003),
+(50000010,	'Complete',	'2021-12-02	12:05:14',	20000001),
+(50000011,	'Missing',	'2021-12-03	01:14:56',	20000002),
+(50000012,	'Lost',	'2021-12-04	09:59:54',	20000003),
+(50000013,	'Missing',	'2021-12-05	21:25:34',	20000001),
+(50000014,	'Complete',	'2021-12-06	08:26:39',	20000002),
+(50000015,	'Missing',	'2021-12-07	17:24:09',	20000003),
+(50000016,	'Missing',	'2021-12-08	02:42:37',	20000001),
+(50000017,	'Lost',	'2021-12-09	13:48:53',	20000002),
+(50000018,	'Complete',	'2021-12-10	23:35:08',	20000003),
+(50000019,	'Lost',	'2021-12-11	14:36:33',	20000001),
+(50000020,	'Complete',	'2021-12-12	17:26:17',	20000002),
+(50000021,	'Missing',	'2021-12-13	14:38:04',	20000003),
+(50000022,	'Lost',	'2021-12-14	23:36:36',	20000001),
+(50000023,	'Complete',	'2021-12-15	07:18:09',	20000002),
+(50000024,	'Complete',	'2021-12-16	16:05:54',	20000003),
+(50000025,	'Complete',	'2021-12-17	10:39:40',	20000001),
+(50000026,	'Missing',	'2021-12-18	06:09:18',	20000002),
+(50000027,	'Lost',	'2021-12-19	18:29:02',	20000003),
+(50000028,	'Lost',	'2021-12-20	20:34:24',	20000001),
+(50000029,	'Complete',	'2021-12-21	07:48:12',	20000002),
+(50000030,	'Missing',	'2021-12-22	22:21:11',	20000003),
+(50000031,	'Missing',	'2021-12-23	12:06:16',	20000001),
+(50000032,	'Missing',	'2021-12-24	12:14:03',	20000002),
+(50000033,	'Complete',	'2021-12-25	11:56:31',	20000003),
+(50000034,	'Complete',	'2021-12-26	21:15:29',	20000001),
+(50000035,	'Missing',	'2021-12-27	02:23:27',	20000002),
+(50000036,	'Complete',	'2021-12-28	18:51:32',	20000003),
+(50000037,	'Lost',	'2021-12-29	01:22:29',	20000001),
+(50000038,	'Complete',	'2021-12-30	00:24:09',	20000002),
+(50000039,	'Lost',	'2021-12-31	23:02:37',	20000003),
+(50000040,	'Missing',	'2022-01-01	03:51:38',	20000001),
+(50000041,	'Lost',	'2022-01-02	21:11:49',	20000002),
+(50000042,	'Complete',	'2022-01-03	01:54:34',	20000003),
+(50000043,	'Lost',	'2022-01-04	21:07:00',	20000001),
+(50000044,	'Missing',	'2022-01-05	05:01:53',	20000002),
+(50000045,	'Missing',	'2022-01-06	03:32:32',	20000003),
+(50000046,	'Lost',	'2022-01-07	15:33:34',	20000001),
+(50000047,	'Lost',	'2022-01-08	22:46:33',	20000002),
+(50000048,	'Complete',	'2022-01-09	05:34:11',	20000003),
+(50000049,	'Lost',	'2022-01-10	07:35:57',	20000001),
+(50000050,	'Lost',	'2022-01-11	12:56:40',	20000002);
+
+INSERT INTO vendor (Vendor_ID, Name, Email, Phone_Number, Zip, City, State)
+VALUES
+(80000001,	'Vendor 1',	'vendor1@gmail.com',	7972364661,	89138,	'Las Vegas',	'NV'),
+(80000002,	'Vendor 2',	'vendor2@gmail.com',	7137276740,	89138,	'Las Vegas',	'NV'),
+(80000003,	'Vendor 3',	'vendor3@gmail.com',	7842909982,	89138,	'Las Vegas',	'NV'),
+(80000004,	'Vendor 4',	'vendor4@gmail.com',	7334030644,	89138,	'Las Vegas',	'NV'),
+(80000005,	'Vendor 5',	'vendor5@gmail.com',	7102936730,	89138,	'Las Vegas',	'NV'),
+(80000006,	'Vendor 6',	'vendor6@gmail.com',	7062043357,	89138,	'Las Vegas',	'NV'),
+(80000007,	'Vendor 7',	'vendor7@gmail.com',	7551524656,	89138,	'Las Vegas',	'NV'),
+(80000008,	'Vendor 8',	'vendor8@gmail.com',	7073962462,	89138,	'Las Vegas',	'NV'),
+(80000009,	'Vendor 9',	'vendor9@gmail.com',	7879805994,	89138,	'Las Vegas',	'NV'),
+(80000010,	'Vendor 10',	'vendor10@gmail.com',	7632455798,	89138,	'Las Vegas',	'NV'),
+(80000011,	'Vendor 11',	'vendor11@gmail.com',	7357076009,	89138,	'Las Vegas',	'NV'),
+(80000012,	'Vendor 12',	'vendor12@gmail.com',	7972055564,	89138,	'Las Vegas',	'NV'),
+(80000013,	'Vendor 13',	'vendor13@gmail.com',	7910176937,	89138,	'Las Vegas',	'NV'),
+(80000014,	'Vendor 14',	'vendor14@gmail.com',	7237106689,	89138,	'Las Vegas',	'NV'),
+(80000015,	'Vendor 15',	'vendor15@gmail.com',	7342803888,	89138,	'Las Vegas',	'NV'),
+(80000016,	'Vendor 16',	'vendor16@gmail.com',	7011493068,	89138,	'Las Vegas',	'NV'),
+(80000017,	'Vendor 17',	'vendor17@gmail.com',	7762049910,	89138,	'Las Vegas',	'NV'),
+(80000018,	'Vendor 18',	'vendor18@gmail.com',	7215802476,	89138,	'Las Vegas',	'NV'),
+(80000019,	'Vendor 19',	'vendor19@gmail.com',	7464655975,	89138,	'Las Vegas',	'NV'),
+(80000020,	'Vendor 20',	'vendor20@gmail.com',	7010271403,	89138,	'Las Vegas',	'NV'),
+(80000021,	'Vendor 21',	'vendor21@gmail.com',	7487646807,	89138,	'Las Vegas',	'NV'),
+(80000022,	'Vendor 22',	'vendor22@gmail.com',	7559263375,	89138,	'Las Vegas',	'NV'),
+(80000023,	'Vendor 23',	'vendor23@gmail.com',	7246437741,	89138,	'Las Vegas',	'NV'),
+(80000024,	'Vendor 24',	'vendor24@gmail.com',	7784348176,	89138,	'Las Vegas',	'NV'),
+(80000025,	'Vendor 25',	'vendor25@gmail.com',	7984893685,	89138,	'Las Vegas',	'NV'),
+(80000026,	'Vendor 26',	'vendor26@gmail.com',	7917542725,	89138,	'Las Vegas',	'NV'),
+(80000027,	'Vendor 27',	'vendor27@gmail.com',	7091305264,	89138,	'Las Vegas',	'NV'),
+(80000028,	'Vendor 28',	'vendor28@gmail.com',	7472704445,	89138,	'Las Vegas',	'NV'),
+(80000029,	'Vendor 29',	'vendor29@gmail.com',	7490735093,	89138,	'Las Vegas',	'NV'),
+(80000030,	'Vendor 30',	'vendor30@gmail.com',	7576317620,	89138,	'Las Vegas',	'NV'),
+(80000031,	'Vendor 31',	'vendor31@gmail.com',	7857917639,	89138,	'Las Vegas',	'NV'),
+(80000032,	'Vendor 32',	'vendor32@gmail.com',	7112283370,	89138,	'Las Vegas',	'NV'),
+(80000033,	'Vendor 33',	'vendor33@gmail.com',	7827172578,	89138,	'Las Vegas',	'NV'),
+(80000034,	'Vendor 34',	'vendor34@gmail.com',	7767381317,	89138,	'Las Vegas',	'NV'),
+(80000035,	'Vendor 35',	'vendor35@gmail.com',	7586467369,	89138,	'Las Vegas',	'NV'),
+(80000036,	'Vendor 36',	'vendor36@gmail.com',	7145581352,	89138,	'Las Vegas',	'NV'),
+(80000037,	'Vendor 37',	'vendor37@gmail.com',	7802684049,	89138,	'Las Vegas',	'NV'),
+(80000038,	'Vendor 38',	'vendor38@gmail.com',	7134669300,	89138,	'Las Vegas',	'NV'),
+(80000039,	'Vendor 39',	'vendor39@gmail.com',	7826780233,	89138,	'Las Vegas',	'NV'),
+(80000040,	'Vendor 40',	'vendor40@gmail.com',	7766573766,	89138,	'Las Vegas',	'NV'),
+(80000041,	'Vendor 41',	'vendor41@gmail.com',	7175765315,	89138,	'Las Vegas',	'NV'),
+(80000042,	'Vendor 42',	'vendor42@gmail.com',	7900490600,	89138,	'Las Vegas',	'NV'),
+(80000043,	'Vendor 43',	'vendor43@gmail.com',	7293138685,	89138,	'Las Vegas',	'NV'),
+(80000044,	'Vendor 44',	'vendor44@gmail.com',	7179583886,	89138,	'Las Vegas',	'NV'),
+(80000045,	'Vendor 45',	'vendor45@gmail.com',	7875751997,	89138,	'Las Vegas',	'NV'),
+(80000046,	'Vendor 46',	'vendor46@gmail.com',	7270103719,	89138,	'Las Vegas',	'NV'),
+(80000047,	'Vendor 47',	'vendor47@gmail.com',	7483861638,	89138,	'Las Vegas',	'NV'),
+(80000048,	'Vendor 48',	'vendor48@gmail.com',	7476344057,	89138,	'Las Vegas',	'NV'),
+(80000049,	'Vendor 49',	'vendor49@gmail.com',	7551502486,	89138,	'Las Vegas',	'NV'),
+(80000050,	'Vendor 50',	'vendor50@gmail.com',	7218898174,	89138,	'Las Vegas',	'NV'),
+(80000051,	'Vendor 51',	'vendor51@gmail.com',	2222484717,	90210,	'Los Angeles',	'CA'),
+(80000052,	'Vendor 52',	'vendor52@gmail.com',	2214857014,	90210,	'Los Angeles',	'CA'),
+(80000053,	'Vendor 53',	'vendor53@gmail.com',	2832923071,	90210,	'Los Angeles',	'CA'),
+(80000054,	'Vendor 54',	'vendor54@gmail.com',	2052636643,	90210,	'Los Angeles',	'CA'),
+(80000055,	'Vendor 55',	'vendor55@gmail.com',	2396516856,	90210,	'Los Angeles',	'CA'),
+(80000056,	'Vendor 56',	'vendor56@gmail.com',	3392311542,	10001,	'New York',	'NY'),
+(80000057,	'Vendor 57',	'vendor57@gmail.com',	3163772886,	10001,	'New York',	'NY'),
+(80000058,	'Vendor 58',	'vendor58@gmail.com',	3856242961,	10001,	'New York',	'NY'),
+(80000059,	'Vendor 59',	'vendor59@gmail.com',	3536437119,	10001,	'New York',	'NY'),
+(80000060,	'Vendor 60',	'vendor60@gmail.com',	3565255850,	10001,	'New York',	'NY');
+
+INSERT INTO sells (Vendor_ID, Product_ID)
+VALUES
+(80000001,	60000001),
+(80000002,	60000002),
+(80000003,	60000003),
+(80000004,	60000004),
+(80000005,	60000005),
+(80000006,	60000006),
+(80000007,	60000007),
+(80000008,	60000008),
+(80000009,	60000009),
+(80000010,	60000010),
+(80000011,	60000011),
+(80000012,	60000012),
+(80000013,	60000013),
+(80000014,	60000014),
+(80000015,	60000015),
+(80000016,	60000016),
+(80000017,	60000017),
+(80000018,	60000018),
+(80000019,	60000019),
+(80000020,	60000020),
+(80000021,	60000021),
+(80000022,	60000022),
+(80000023,	60000023),
+(80000024,	60000024),
+(80000025,	60000025),
+(80000026,	60000026),
+(80000027,	60000027),
+(80000028,	60000028),
+(80000029,	60000029),
+(80000030,	60000030),
+(80000031,	60000031),
+(80000032,	60000032),
+(80000033,	60000033),
+(80000034,	60000034),
+(80000035,	60000035),
+(80000036,	60000036),
+(80000037,	60000037),
+(80000038,	60000038),
+(80000039,	60000039),
+(80000040,	60000040),
+(80000041,	60000041),
+(80000042,	60000042),
+(80000043,	60000043),
+(80000044,	60000044),
+(80000045,	60000045),
+(80000046,	60000046),
+(80000047,	60000047),
+(80000048,	60000048),
+(80000049,	60000049),
+(80000050,	60000050);
+
+INSERT INTO supplier (Supplier_ID, Name, Email, Phone_Number, Zip, City, State)
+VALUES
+(70000001,	'Supplier 1',	'supplier1@gmail.com',	9477323233,	89138,	'Las Vegas',	'NV'),
+(70000002,	'Supplier 2',	'supplier2@gmail.com',	9676541579,	89138,	'Las Vegas',	'NV'),
+(70000003,	'Supplier 3',	'supplier3@gmail.com',	9936402918,	89138,	'Las Vegas',	'NV'),
+(70000004,	'Supplier 4',	'supplier4@gmail.com',	9169425206,	89138,	'Las Vegas',	'NV'),
+(70000005,	'Supplier 5',	'supplier5@gmail.com',	9579474878,	89138,	'Las Vegas',	'NV'),
+(70000006,	'Supplier 6',	'supplier6@gmail.com',	9005331418,	89138,	'Las Vegas',	'NV'),
+(70000007,	'Supplier 7',	'supplier7@gmail.com',	9679719494,	89138,	'Las Vegas',	'NV'),
+(70000008,	'Supplier 8',	'supplier8@gmail.com',	9412265267,	89138,	'Las Vegas',	'NV'),
+(70000009,	'Supplier 9',	'supplier9@gmail.com',	9458757668,	89138,	'Las Vegas',	'NV'),
+(70000010,	'Supplier 10',	'supplier10@gmail.com',	9478819382,	89138,	'Las Vegas',	'NV'),
+(70000011,	'Supplier 11',	'supplier11@gmail.com',	9228162683,	89138,	'Las Vegas',	'NV'),
+(70000012,	'Supplier 12',	'supplier12@gmail.com',	9865937435,	89138,	'Las Vegas',	'NV'),
+(70000013,	'Supplier 13',	'supplier13@gmail.com',	9012663548,	89138,	'Las Vegas',	'NV'),
+(70000014,	'Supplier 14',	'supplier14@gmail.com',	9401758230,	89138,	'Las Vegas',	'NV'),
+(70000015,	'Supplier 15',	'supplier15@gmail.com',	9194000359,	89138,	'Las Vegas',	'NV'),
+(70000016,	'Supplier 16',	'supplier16@gmail.com',	9620302164,	89138,	'Las Vegas',	'NV'),
+(70000017,	'Supplier 17',	'supplier17@gmail.com',	9214172158,	89138,	'Las Vegas',	'NV'),
+(70000018,	'Supplier 18',	'supplier18@gmail.com',	9077215472,	89138,	'Las Vegas',	'NV'),
+(70000019,	'Supplier 19',	'supplier19@gmail.com',	9296929866,	89138,	'Las Vegas',	'NV'),
+(70000020,	'Supplier 20',	'supplier20@gmail.com',	9510084229,	89138,	'Las Vegas',	'NV'),
+(70000021,	'Supplier 21',	'supplier21@gmail.com',	9011686247,	89138,	'Las Vegas',	'NV'),
+(70000022,	'Supplier 22',	'supplier22@gmail.com',	9275168593,	89138,	'Las Vegas',	'NV'),
+(70000023,	'Supplier 23',	'supplier23@gmail.com',	9479788889,	89138,	'Las Vegas',	'NV'),
+(70000024,	'Supplier 24',	'supplier24@gmail.com',	9710011174,	89138,	'Las Vegas',	'NV'),
+(70000025,	'Supplier 25',	'supplier25@gmail.com',	9406811341,	89138,	'Las Vegas',	'NV'),
+(70000026,	'Supplier 26',	'supplier26@gmail.com',	9481498530,	89138,	'Las Vegas',	'NV'),
+(70000027,	'Supplier 27',	'supplier27@gmail.com',	9125648157,	89138,	'Las Vegas',	'NV'),
+(70000028,	'Supplier 28',	'supplier28@gmail.com',	9049781353,	89138,	'Las Vegas',	'NV'),
+(70000029,	'Supplier 29',	'supplier29@gmail.com',	9867519698,	89138,	'Las Vegas',	'NV'),
+(70000030,	'Supplier 30',	'supplier30@gmail.com',	9812754940,	89138,	'Las Vegas',	'NV'),
+(70000031,	'Supplier 31',	'supplier31@gmail.com',	9457149986,	89138,	'Las Vegas',	'NV'),
+(70000032,	'Supplier 32',	'supplier32@gmail.com',	9553821541,	89138,	'Las Vegas',	'NV'),
+(70000033,	'Supplier 33',	'supplier33@gmail.com',	9805734983,	89138,	'Las Vegas',	'NV'),
+(70000034,	'Supplier 34',	'supplier34@gmail.com',	9607810507,	89138,	'Las Vegas',	'NV'),
+(70000035,	'Supplier 35',	'supplier35@gmail.com',	9461783213,	89138,	'Las Vegas',	'NV'),
+(70000036,	'Supplier 36',	'supplier36@gmail.com',	9370078564,	89138,	'Las Vegas',	'NV'),
+(70000037,	'Supplier 37',	'supplier37@gmail.com',	9749771610,	89138,	'Las Vegas',	'NV'),
+(70000038,	'Supplier 38',	'supplier38@gmail.com',	9375678148,	89138,	'Las Vegas',	'NV'),
+(70000039,	'Supplier 39',	'supplier39@gmail.com',	9868978433,	89138,	'Las Vegas',	'NV'),
+(70000040,	'Supplier 40',	'supplier40@gmail.com',	9423562322,	89138,	'Las Vegas',	'NV'),
+(70000041,	'Supplier 41',	'supplier41@gmail.com',	9499966992,	89138,	'Las Vegas',	'NV'),
+(70000042,	'Supplier 42',	'supplier42@gmail.com',	9839929282,	89138,	'Las Vegas',	'NV'),
+(70000043,	'Supplier 43',	'supplier43@gmail.com',	9130519639,	89138,	'Las Vegas',	'NV'),
+(70000044,	'Supplier 44',	'supplier44@gmail.com',	9174311748,	89138,	'Las Vegas',	'NV'),
+(70000045,	'Supplier 45',	'supplier45@gmail.com',	9996805590,	89138,	'Las Vegas',	'NV'),
+(70000046,	'Supplier 46',	'supplier46@gmail.com',	9227674371,	89138,	'Las Vegas',	'NV'),
+(70000047,	'Supplier 47',	'supplier47@gmail.com',	9112892265,	89138,	'Las Vegas',	'NV'),
+(70000048,	'Supplier 48',	'supplier48@gmail.com',	9541411628,	89138,	'Las Vegas',	'NV'),
+(70000049,	'Supplier 49',	'supplier49@gmail.com',	9181771135,	89138,	'Las Vegas',	'NV'),
+(70000050,	'Supplier 50',	'supplier50@gmail.com',	9486411477,	89138,	'Las Vegas',	'NV'),
+(70000051,	'Supplier 51',	'supplier51@gmail.com',	2432334631,	90210,	'Los Angeles',	'CA'),
+(70000052,	'Supplier 52',	'supplier52@gmail.com',	2215850547,	90210,	'Los Angeles',	'CA'),
+(70000053,	'Supplier 53',	'supplier53@gmail.com',	2998173608,	90210,	'Los Angeles',	'CA'),
+(70000054,	'Supplier 54',	'suppleir54@gmail.com',	2580229232,	90210,	'Los Angeles',	'CA'),
+(70000055,	'Supplier 55',	'supplier55@gmail.com',	2246093711,	90210,	'Los Angeles',	'CA'),
+(70000056,	'Supplier 56',	'suppleir56@gmail.com',	3886860716,	10001,	'New York',	'NY'),
+(70000057,	'Supplier 57',	'supplier57@gmail.com',	3863123770,	10001,	'New York',	'NY'),
+(70000058,	'Supplier 58',	'suppleir58@gmail.com',	3237132222,	10001,	'New York',	'NY'),
+(70000059,	'Supplier 59',	'supplier59@gmail.com',	3437258138,	10001,	'New York',	'NY'),
+(70000060,	'Supplier 60',	'suppleir60@gmail.com',	3417104094,	10001,	'New York',	'NY');
+
+INSERT INTO supplies (Supplier_ID, Product_ID)
+VALUES
+(70000001,	60000001),
+(70000002,	60000002),
+(70000003,	60000003),
+(70000004,	60000004),
+(70000005,	60000005),
+(70000006,	60000006),
+(70000007,	60000007),
+(70000008,	60000008),
+(70000009,	60000009),
+(70000010,	60000010),
+(70000011,	60000011),
+(70000012,	60000012),
+(70000013,	60000013),
+(70000014,	60000014),
+(70000015,	60000015),
+(70000016,	60000016),
+(70000017,	60000017),
+(70000018,	60000018),
+(70000019,	60000019),
+(70000020,	60000020),
+(70000021,	60000021),
+(70000022,	60000022),
+(70000023,	60000023),
+(70000024,	60000024),
+(70000025,	60000025),
+(70000026,	60000026),
+(70000027,	60000027),
+(70000028,	60000028),
+(70000029,	60000029),
+(70000030,	60000030),
+(70000031,	60000031),
+(70000032,	60000032),
+(70000033,	60000033),
+(70000034,	60000034),
+(70000035,	60000035),
+(70000036,	60000036),
+(70000037,	60000037),
+(70000038,	60000038),
+(70000039,	60000039),
+(70000040,	60000040),
+(70000041,	60000041),
+(70000042,	60000042),
+(70000043,	60000043),
+(70000044,	60000044),
+(70000045,	60000045),
+(70000046,	60000046),
+(70000047,	60000047),
+(70000048,	60000048),
+(70000049,	60000049),
+(70000050,	60000050);
+
+-- Update/delete examples --
+-- warehouse
+update warehouse 
+SET City = 'Los Angeles'
+WHERE City = 'Los anageles';
+delete from warehouse
+where name = 'donald';
+
+-- vendor
+update vendor
+SET zip = 75604, city = 'Longview', state = 'TX'
+where vendor_id = '80000050';
+delete from vendor
+WHERE vendor_id = '80000001';
+
+-- user
+update user
+SET Warehouse_ID = '20000001'
+where first_name = 'john'
+AND last_name = 'williams';
+delete from user
+WHERE user_id = '10000001';
+
+-- supplier
+update supplier
+SET Phone_Number = '20000001'
+where Supplier_ID = '70000006';
+delete from supplier
+WHERE supplier_id = '70000007';
+
+-- Qty_Change
+update qty_change
+SET reason = 'Return'
+where change_id = '30000021';
+delete from qty_change
+WHERE change_id = '30000030';
+
+-- Product
+update product
+SET price = 100.00
+where product_id = '60000003';
+delete from product
+WHERE product_id = '60000015';
+
+-- Audit
+update audit
+SET reason = 'Complete'
+where audit_id = '50000001';
+delete from audit
+WHERE audit_id = '50000031';
+ 
+-- Frequently used queries --
+-- Show the amount of audits warehouse number 20000002 has had. List the audits by audit id number, date, and the warehouse ID. List in ascending order --
+SELECT Audit_ID, Timestamp, Warehouse_ID
+from Audit
+where warehouse_ID = '20000002';
+
+-- Find out which suppliers supplied a product in a quantity of 4 or more. List the suppliers by supplier id, supplier name, product name and quantity.  --
+SELECT supplier.supplier_id,supplier.name as "Supplier Name", product.name as "Product Name" , product.Quantity
+from supplier
+inner join supplies
+on supplier.supplier_id = supplies.supplier_id
+inner join product
+on supplies.product_id = product.product_id
+where product.quantity >= '4';
+
+-- Check to see how many users there are in the database. Organize by User Name (First and Last) and their user ID. --
+SELECT User.First_Name, User.Last_Name, User_id
+from USER;
+
+-- Show the Audits that were generated within the month of December 2021. List the date and time of the audit, the AuditID and the user the warehouse that was audited. --
+SELECT audit.timestamp, audit.audit_ID, warehouse.warehouse_ID
+from audit
+inner join warehouse
+on audit.warehouse_id = warehouse.warehouse_ID
+where timestamp between '2021-12-01 0:00:00' and '2021-12-31 23:59:59';
+
+-- Find out which products over $80 have had a quantity change. List the product ID, the price, the quantity, the reason for the change and the change ID. --
+SELECT Product.Product_ID, product.Price, product.Quantity, qty_change.Reason, Change_ID
+from Product
+inner join qty_change
+on product.Product_ID = qty_change.product_id
+where product.price > '80';
+
+-- Give the Date and Time along with the warehouse ID of every audit performed.  --
+SELECT audit.timestamp, warehouse.warehouse_id
+from audit
+inner join warehouse
+on audit.warehouse_id = audit.warehouse_id;
+
+-- List all the quantity changes change_ID that were changed for the reason being a return. --
+SELECT change_ID, reason
+from qty_change
+where reason = 'Return';
+
+-- List the storage location of products over the price of $95, along with the Supplier ID that supplied the item and the product name. --
+SELECT storage_location, supplier.supplier_id, product.Name as "Product Name"
+from supplier
+inner join supplies
+on supplier.supplier_id = supplies.supplier_id
+inner join product
+on supplies.product_id = product.product_id
+where product.price > '95';
+
+-- List the total amount of quantity changes per user to see who changes the quantity the most. List the User_ID and the amount of changes each user has done. --
+select User.User_ID, COUNT(User.User_ID) AS "Amount of changes to qty"
+from User
+inner join qty_Change
+on user.user_ID = qty_change.user_ID
+Group by User.user_id;
+
+-- Products with a quantity of 3 or higher are stored in which warehouses? List the product Name, product ID, warehouse ID and the quantity of the product. --
+select product.Name as "Product Name", product.Product_ID, product.Warehouse_ID, Product.Quantity
+from product
+where product.Quantity >= '3';
+
+-- List the Vendors located in the state of Nevada. List the vendor name and ID. --
+Select vendor.name as "Vendor Name" , vendor.vendor_ID
+from Vendor
+where Vendor.state like 'NV';
+
+-- Which products have received the most quantity changes? List the product name, ID and the amount of quantity changes it has received and keep it in ascending order. --
+Select Product.Name, COUNT(Product.Product_ID)
+from qty_change
+inner join Product
+on product.product_id = qty_change.product_ID
+GROUP BY Product.Name;
+
+-- List the User ID, email and password of every user in the database. --
+select user.User_ID, user.email, user.Password
+from user;
+
+-- Show every sale sold by ‘Vendor 9’. List the quantity and vendor name. --
+select vendor.Name, product.Quantity
+from vendor
+inner join sells
+on vendor.vendor_ID = sells.vendor_ID
+inner join product
+on sells.product_ID = product.product_ID
+where vendor.name like 'Vendor 9';
+
+-- Show the location information on every product warehouse. List the State, city and ZIP.  --
+select distinct warehouse.State, warehouse.City, warehouse.ZIP
+from warehouse;
+
